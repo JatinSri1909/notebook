@@ -45,8 +45,22 @@ export default function NoteDetail() {
       setTitle(noteData.title);
       setContent(noteData.content);
       setTextStyles(noteData.textStyles);
+      
+      // Set title style
       if (noteData.titleStyle) {
         setTitleStyle(noteData.titleStyle);
+      }
+
+      // Set current style from the last applied style
+      if (noteData.textStyles.length > 0) {
+        const lastStyle = noteData.textStyles[noteData.textStyles.length - 1];
+        setCurrentStyle({
+          fontSize: lastStyle.fontSize || 16,
+          fontFamily: lastStyle.fontFamily,
+          fontStyle: lastStyle.fontStyle || 'normal',
+          color: lastStyle.color,
+          position: lastStyle.position
+        });
       }
     }
   };
@@ -64,7 +78,7 @@ export default function NoteDetail() {
       };
       await notesService.updateNote(updatedNote);
       setIsEditing(false);
-      loadNote();
+      setNote(updatedNote);
     } catch (error) {
       console.error('Error saving note:', error);
     }
@@ -180,12 +194,21 @@ export default function NoteDetail() {
     return <Text>{textPieces}</Text>;
   };
 
+  const handleBack = () => {
+    if (isEditing) {
+      setIsEditing(false);  // Just exit edit mode
+      loadNote();  // Reload the original note
+    } else {
+      router.back();  // Go back to previous screen
+    }
+  };
+
   if (!note) return null;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
+      <View style={[styles.header]}>
+        <Pressable onPress={handleBack} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
         {isEditing ? (
@@ -276,7 +299,6 @@ const styles = StyleSheet.create({
     padding: 8,
     paddingTop: 40,
     height: 70,
-    borderBottomWidth: 1,
   },
   backButton: {
     width: 32,

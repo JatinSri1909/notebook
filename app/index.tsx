@@ -1,6 +1,6 @@
 import { View, Text, FlatList, Pressable, StyleSheet, StatusBar, Alert } from 'react-native';
-import { Link, useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { Link, useRouter, useFocusEffect } from 'expo-router';
+import { useState, useEffect, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { notesService, type Note } from './services/notesService';
 import { useTheme } from './context/ThemeContext';
@@ -25,6 +25,12 @@ export default function Index() {
   useEffect(() => {
     loadNotes();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadNotes();
+    }, [])
+  );
 
   const deleteNote = async (id: string) => {
     Alert.alert(
