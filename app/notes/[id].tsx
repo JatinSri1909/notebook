@@ -52,7 +52,6 @@ export default function NoteDetail() {
               fontSize: style.fontSize,
               fontFamily: style.fontFamily,
               fontStyle: style.fontStyle,
-              color: style.color,
             },
           ]}
         >
@@ -87,7 +86,18 @@ export default function NoteDetail() {
       </View>
 
       <ScrollView style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>{note.title}</Text>
+        <Text style={[
+          styles.title,
+          { color: colors.text },
+          note.titleStyle && {
+            fontSize: note.titleStyle.fontSize,
+            fontFamily: note.titleStyle.fontFamily,
+            fontStyle: note.titleStyle.fontStyle,
+            color: note.titleStyle.color,
+          }
+        ]}>
+          {note.title}
+        </Text>
         {renderStyledText(note.content, note.textStyles)}
       </ScrollView>
     </View>

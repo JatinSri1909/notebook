@@ -17,17 +17,27 @@ export default function NewNote() {
     color: undefined,
     position: 0,
   });
+  const [titleStyle, setTitleStyle] = useState<NoteTextStyle>({
+    fontSize: 24,
+    fontFamily: undefined,
+    fontStyle: 'normal' as const,
+    color: undefined,
+    position: 0,
+  });
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const inputRef = useRef<TextInput>(null);
+  const titleInputRef = useRef<TextInput>(null);
   const router = useRouter();
   const { colors } = useTheme();
   const [selection, setSelection] = useState({ start: 0, end: 0 });
 
   const handleFontSizeChange = (size: number) => {
-    if (selection) {
+    if (isEditingTitle) {
+      setTitleStyle(prev => ({ ...prev, fontSize: size }));
+    } else if (selection) {
       const newStyle = {
+        ...currentStyle,
         fontSize: size,
-        fontFamily: currentStyle.fontFamily,
-        fontStyle: currentStyle.fontStyle,
         position: selection.start
       };
       setCurrentStyle(newStyle);
@@ -36,11 +46,12 @@ export default function NewNote() {
   };
 
   const handleFontFamilyChange = (family: string | undefined) => {
-    if (selection) {
+    if (isEditingTitle) {
+      setTitleStyle(prev => ({ ...prev, fontFamily: family }));
+    } else if (selection) {
       const newStyle = {
-        fontSize: currentStyle.fontSize,
+        ...currentStyle,
         fontFamily: family,
-        fontStyle: currentStyle.fontStyle,
         position: selection.start
       };
       setCurrentStyle(newStyle);
@@ -49,10 +60,11 @@ export default function NewNote() {
   };
 
   const handleFontStyleChange = (style: 'normal' | 'italic') => {
-    if (selection) {
+    if (isEditingTitle) {
+      setTitleStyle(prev => ({ ...prev, fontStyle: style }));
+    } else if (selection) {
       const newStyle = {
-        fontSize: currentStyle.fontSize,
-        fontFamily: currentStyle.fontFamily,
+        ...currentStyle,
         fontStyle: style,
         position: selection.start
       };
@@ -62,7 +74,9 @@ export default function NewNote() {
   };
 
   const handleFontColorChange = (color: string) => {
-    if (selection) {
+    if (isEditingTitle) {
+      setTitleStyle(prev => ({ ...prev, color }));
+    } else if (selection) {
       const newStyle = {
         ...currentStyle,
         color,
@@ -80,7 +94,7 @@ export default function NewNote() {
     }
 
     try {
-      await notesService.addNote(title.trim(), content.trim(), textStyles);
+      await notesService.addNote(title.trim(), content.trim(), textStyles, titleStyle);
       router.replace('/');
     } catch (error) {
       Alert.alert('Error', 'Failed to save note');
@@ -103,29 +117,39 @@ export default function NewNote() {
         onFontFamilyChange={handleFontFamilyChange}
         onFontStyleChange={handleFontStyleChange}
         onFontColorChange={handleFontColorChange}
-        currentSize={currentStyle.fontSize || 16}
-        currentFamily={currentStyle.fontFamily}
-        currentStyle={currentStyle.fontStyle || 'normal'}
-        currentColor={currentStyle.color || colors.text}
+        currentSize={isEditingTitle ? titleStyle.fontSize || 24 : currentStyle.fontSize || 16}
+        currentFamily={isEditingTitle ? titleStyle.fontFamily : currentStyle.fontFamily}
+        currentStyle={isEditingTitle ? titleStyle.fontStyle || 'normal' : currentStyle.fontStyle || 'normal'}
+        currentColor={isEditingTitle ? titleStyle.color || colors.text : currentStyle.color || colors.text}
       />
 
       <TextInput
-        style={[styles.titleInput, { color: colors.text }]}
+        ref={titleInputRef}
+        style={[
+          styles.titleInput,
+          {
+            color: titleStyle.color || colors.text,
+            fontSize: titleStyle.fontSize || 24,
+            fontFamily: titleStyle.fontFamily,
+            fontStyle: titleStyle.fontStyle || 'normal',
+          }
+        ]}
         placeholder="Note Title"
         value={title}
         onChangeText={setTitle}
         placeholderTextColor={colors.subtitle}
+        onFocus={() => setIsEditingTitle(true)}
       />
+
       <TextInput
         ref={inputRef}
         style={[
           styles.contentInput,
-          { color: colors.text },
           {
-            fontSize: currentStyle.fontSize,
+            color: currentStyle.color || colors.text,
+            fontSize: currentStyle.fontSize || 16,
             fontFamily: currentStyle.fontFamily,
-            fontStyle: currentStyle.fontStyle,
-            color: currentStyle.color,
+            fontStyle: currentStyle.fontStyle || 'normal',
           }
         ]}
         placeholder="Write your note here..."
@@ -134,8 +158,11 @@ export default function NewNote() {
         multiline
         textAlignVertical="top"
         placeholderTextColor={colors.subtitle}
+        onFocus={() => setIsEditingTitle(false)}
         onSelectionChange={(event) => {
-          setSelection(event.nativeEvent.selection);
+          if (!isEditingTitle) {
+            setSelection(event.nativeEvent.selection);
+          }
         }}
       />
     </View>

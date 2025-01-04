@@ -11,6 +11,7 @@ export interface NoteTextStyle {
 export type Note = {
   id: string;
   title: string;
+  titleStyle?: NoteTextStyle;
   content: string;
   date: string;
   textStyles: NoteTextStyle[];
@@ -29,12 +30,18 @@ export const notesService = {
     }
   },
 
-  async addNote(title: string, content: string, textStyles: NoteTextStyle[] = []): Promise<Note> {
+  async addNote(
+    title: string, 
+    content: string, 
+    textStyles: NoteTextStyle[] = [], 
+    titleStyle?: NoteTextStyle
+  ): Promise<Note> {
     try {
       const notes = await this.getAllNotes();
       const newNote: Note = {
         id: Date.now().toString(),
         title,
+        titleStyle,
         content,
         date: new Date().toISOString().split('T')[0],
         textStyles,
