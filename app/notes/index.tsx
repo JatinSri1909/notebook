@@ -2,11 +2,9 @@ import { View, Text, FlatList, Pressable, StyleSheet, StatusBar, Alert } from 'r
 import { Link, useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { notesService, type Note } from './services/notesService';
-import { useTheme } from './context/ThemeContext';
+import { notesService, type Note } from '../services/notesService';
 
-export default function Index() {
-  const { colors, toggleTheme } = useTheme();
+export default function Notes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -38,7 +36,7 @@ export default function Index() {
           onPress: async () => {
             try {
               await notesService.deleteNote(id);
-              await loadNotes();
+              await loadNotes(); // Reload notes after deletion
             } catch (error) {
               Alert.alert('Error', 'Failed to delete note');
             }
@@ -49,17 +47,18 @@ export default function Index() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={colors.text === '#000000' ? 'dark-content' : 'light-content'} />
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.text }]}>My Notes</Text>
-        <Pressable onPress={toggleTheme} style={styles.themeButton}>
-          <Ionicons 
-            name={colors.text === '#000000' ? 'moon' : 'sunny'} 
-            size={24} 
-            color={colors.text}
-          />
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="chevron-back" size={28} color="#007AFF" />
         </Pressable>
+        <Text style={styles.title}>All Notes</Text>
+        <Link href="../notes/new" asChild>
+          <Pressable style={styles.addButton}>
+            <Ionicons name="add" size={28} color="#007AFF" />
+          </Pressable>
+        </Link>
       </View>
 
       <FlatList
@@ -71,7 +70,7 @@ export default function Index() {
             <Ionicons name="documents-outline" size={64} color="#C7C7CC" />
             <Text style={styles.emptyStateText}>No notes yet</Text>
             <Text style={styles.emptyStateSubtext}>
-              Tap + to create your first note
+              Tap the + button to create your first note
             </Text>
           </View>
         )}
@@ -99,12 +98,6 @@ export default function Index() {
           </Pressable>
         )}
       />
-
-      <Link href="./notes/new" asChild>
-        <Pressable style={styles.fab}>
-          <Ionicons name="add" size={30} color="#FFFFFF" />
-        </Pressable>
-      </Link>
     </View>
   );
 }
@@ -115,20 +108,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
-    paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
     paddingTop: 60,
-    paddingBottom: 20,
+    paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#F2F2F7',
   },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   title: {
-    fontSize: 34,
-    fontWeight: '700',
+    fontSize: 17,
+    fontWeight: '600',
     color: '#000000',
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F2F2F7',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   listContainer: {
     padding: 16,
-    paddingBottom: 80, // Add padding for FAB
+    flexGrow: 1,
   },
   emptyState: {
     flex: 1,
@@ -155,11 +165,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#F2F2F7',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
   },
   noteContent: {
     flex: 1,
@@ -184,30 +189,4 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     padding: 8,
   },
-  fab: {
-    position: 'absolute',
-    right: 20,
-    bottom: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#007AFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  themeButton: {
-    position: 'absolute',
-    right: 20,
-    top: 60,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+}); 
