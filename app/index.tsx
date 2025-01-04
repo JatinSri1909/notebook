@@ -154,15 +154,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
+    paddingTop: 15,
+    paddingBottom: 10,
   },
   title: {
     fontSize: 34,
-    fontWeight: '700',
+    fontWeight: 'bold',
     color: '#000000',
   },
   listContainer: {
@@ -240,13 +241,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   themeButton: {
-    position: 'absolute',
-    right: 20,
-    top: 60,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 8,
+    marginTop: 4,
+    right: 30,
   },
 });
