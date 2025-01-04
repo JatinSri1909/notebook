@@ -90,14 +90,38 @@ export default function Index() {
             })}
           >
             <View style={styles.noteContent}>
-              <Text style={[styles.noteTitle, { color: colors.text }]}>{item.title}</Text>
               <Text 
-                style={[styles.notePreview, { color: colors.subtitle }]} 
+                style={[
+                  styles.noteTitle, 
+                  { color: colors.text },
+                  item.titleStyle && {
+                    fontSize: item.titleStyle.fontSize,
+                    fontFamily: item.titleStyle.fontFamily,
+                    fontStyle: item.titleStyle.fontStyle,
+                    color: item.titleStyle.color || colors.text,
+                  }
+                ]}
+              >
+                {item.title}
+              </Text>
+              <Text 
+                style={[
+                  styles.notePreview,
+                  { color: colors.subtitle },
+                  item.textStyles.length > 0 && {
+                    fontSize: item.textStyles[item.textStyles.length - 1].fontSize || 16,
+                    fontFamily: item.textStyles[item.textStyles.length - 1].fontFamily,
+                    fontStyle: item.textStyles[item.textStyles.length - 1].fontStyle || 'normal',
+                    color: item.textStyles[item.textStyles.length - 1].color || colors.subtitle,
+                  }
+                ]} 
                 numberOfLines={2}
               >
                 {item.content}
               </Text>
-              <Text style={[styles.noteDate, { color: colors.subtitle }]}>{item.date}</Text>
+              <Text style={[styles.noteDate, { color: colors.subtitle }]}>
+                {item.date}
+              </Text>
             </View>
             <Pressable
               style={styles.deleteButton}
