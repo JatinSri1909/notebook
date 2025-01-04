@@ -1,10 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export interface NoteTextStyle {
+  fontSize?: number;
+  fontFamily?: string;
+  fontStyle?: 'normal' | 'italic';
+  position: number;
+}
+
 export type Note = {
   id: string;
   title: string;
   content: string;
   date: string;
+  textStyles: NoteTextStyle[];
 };
 
 const STORAGE_KEY = 'notes';
@@ -20,7 +28,7 @@ export const notesService = {
     }
   },
 
-  async addNote(title: string, content: string): Promise<Note> {
+  async addNote(title: string, content: string, textStyles: NoteTextStyle[] = []): Promise<Note> {
     try {
       const notes = await this.getAllNotes();
       const newNote: Note = {
@@ -28,6 +36,7 @@ export const notesService = {
         title,
         content,
         date: new Date().toISOString().split('T')[0],
+        textStyles,
       };
       
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([newNote, ...notes]));
