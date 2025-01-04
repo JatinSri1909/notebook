@@ -1,13 +1,36 @@
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { notesService, type Note, NoteTextStyle } from '../services/notesService';
 import { useTheme } from '../context/ThemeContext';
+import FontToolbar from '../components/FontToolbar';
 
 export default function NoteDetail() {
   const { id } = useLocalSearchParams();
   const [note, setNote] = useState<Note | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [titleStyle, setTitleStyle] = useState<NoteTextStyle>({
+    fontSize: 24,
+    fontFamily: undefined,
+    fontStyle: 'normal' as const,
+    color: undefined,
+    position: 0,
+  });
+  const [textStyles, setTextStyles] = useState<NoteTextStyle[]>([]);
+  const [currentStyle, setCurrentStyle] = useState<NoteTextStyle>({
+    fontSize: 16,
+    fontFamily: undefined,
+    fontStyle: 'normal' as const,
+    color: undefined,
+    position: 0,
+  });
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
+  const titleInputRef = useRef<TextInput>(null);
+  const contentInputRef = useRef<TextInput>(null);
   const router = useRouter();
   const { colors } = useTheme();
 
@@ -17,7 +40,90 @@ export default function NoteDetail() {
 
   const loadNote = async () => {
     const noteData = await notesService.getNoteById(id as string);
-    setNote(noteData);
+    if (noteData) {
+      setNote(noteData);
+      setTitle(noteData.title);
+      setContent(noteData.content);
+      setTextStyles(noteData.textStyles);
+      if (noteData.titleStyle) {
+        setTitleStyle(noteData.titleStyle);
+      }
+    }
+  };
+
+  const handleSave = async () => {
+    if (!note) return;
+    
+    try {
+      const updatedNote: Note = {
+        ...note,
+        title,
+        content,
+        textStyles,
+        titleStyle,
+      };
+      await notesService.updateNote(updatedNote);
+      setIsEditing(false);
+      loadNote();
+    } catch (error) {
+      console.error('Error saving note:', error);
+    }
+  };
+
+  const handleFontSizeChange = (size: number) => {
+    if (isEditingTitle) {
+      setTitleStyle(prev => ({ ...prev, fontSize: size }));
+    } else if (selection) {
+      const newStyle = {
+        ...currentStyle,
+        fontSize: size,
+        position: selection.start
+      };
+      setCurrentStyle(newStyle);
+      setTextStyles(prev => [...prev, newStyle]);
+    }
+  };
+
+  const handleFontFamilyChange = (family: string) => {
+    if (isEditingTitle) {
+      setTitleStyle(prev => ({ ...prev, fontFamily: family }));
+    } else if (selection) {
+      const newStyle = {
+        ...currentStyle,
+        fontFamily: family,
+        position: selection.start
+      };
+      setCurrentStyle(newStyle);
+      setTextStyles(prev => [...prev, newStyle]);
+    }
+  };
+
+  const handleFontStyleChange = (style: string) => {
+    if (isEditingTitle) {
+      setTitleStyle(prev => ({ ...prev, fontStyle: style }));
+    } else if (selection) {
+      const newStyle = {
+        ...currentStyle,
+        fontStyle: style,
+        position: selection.start
+      };
+      setCurrentStyle(newStyle);
+      setTextStyles(prev => [...prev, newStyle]);
+    }
+  };
+
+  const handleFontColorChange = (color: string) => {
+    if (isEditingTitle) {
+      setTitleStyle(prev => ({ ...prev, color: color }));
+    } else if (selection) {
+      const newStyle = {
+        ...currentStyle,
+        color: color,
+        position: selection.start
+      };
+      setCurrentStyle(newStyle);
+      setTextStyles(prev => [...prev, newStyle]);
+    }
   };
 
   const renderStyledText = (content: string, styles: NoteTextStyle[]) => {
@@ -82,23 +188,78 @@ export default function NoteDetail() {
         <Pressable onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={colors.primary} />
         </Pressable>
-        <Text style={[styles.date, { color: colors.subtitle }]}>{note.date}</Text>
+        {isEditing ? (
+          <Pressable style={styles.saveButton} onPress={handleSave}>
+            <Ionicons name="checkmark" size={24} color="#fff" />
+          </Pressable>
+        ) : (
+          <Pressable style={styles.editButton} onPress={() => setIsEditing(true)}>
+            <Ionicons name="create-outline" size={24} color={colors.primary} />
+          </Pressable>
+        )}
       </View>
 
+      {isEditing && (
+        <FontToolbar
+          onFontSizeChange={handleFontSizeChange}
+          onFontFamilyChange={handleFontFamilyChange}
+          onFontStyleChange={handleFontStyleChange}
+          onFontColorChange={handleFontColorChange}
+          currentSize={isEditingTitle ? titleStyle.fontSize || 24 : currentStyle.fontSize || 16}
+          currentFamily={isEditingTitle ? titleStyle.fontFamily : currentStyle.fontFamily}
+          currentStyle={isEditingTitle ? titleStyle.fontStyle || 'normal' : currentStyle.fontStyle || 'normal'}
+          currentColor={isEditingTitle ? titleStyle.color || colors.text : currentStyle.color || colors.text}
+        />
+      )}
+
       <ScrollView style={styles.content}>
-        <Text style={[
-          styles.title,
-          { color: colors.text },
-          note.titleStyle && {
-            fontSize: note.titleStyle.fontSize,
-            fontFamily: note.titleStyle.fontFamily,
-            fontStyle: note.titleStyle.fontStyle,
-            color: note.titleStyle.color,
-          }
-        ]}>
-          {note.title}
-        </Text>
-        {renderStyledText(note.content, note.textStyles)}
+        {isEditing ? (
+          <>
+            <TextInput
+              ref={titleInputRef}
+              style={[
+                styles.titleInput,
+                {
+                  color: titleStyle.color || colors.text,
+                  fontSize: titleStyle.fontSize || 24,
+                  fontFamily: titleStyle.fontFamily,
+                  fontStyle: titleStyle.fontStyle || 'normal',
+                }
+              ]}
+              value={title}
+              onChangeText={setTitle}
+              onFocus={() => setIsEditingTitle(true)}
+            />
+            <TextInput
+              ref={contentInputRef}
+              style={[
+                styles.contentInput,
+                {
+                  color: currentStyle.color || colors.text,
+                  fontSize: currentStyle.fontSize || 16,
+                  fontFamily: currentStyle.fontFamily,
+                  fontStyle: currentStyle.fontStyle || 'normal',
+                }
+              ]}
+              multiline
+              value={content}
+              onChangeText={setContent}
+              onFocus={() => setIsEditingTitle(false)}
+              onSelectionChange={(event) => {
+                if (!isEditingTitle) {
+                  setSelection(event.nativeEvent.selection);
+                }
+              }}
+            />
+          </>
+        ) : (
+          <Pressable onPress={() => setIsEditing(true)}>
+            <Text style={[styles.title, { color: colors.text }, titleStyle]}>
+              {note.title}
+            </Text>
+            {renderStyledText(note.content, note.textStyles)}
+          </Pressable>
+        )}
       </ScrollView>
     </View>
   );
@@ -138,5 +299,31 @@ const styles = StyleSheet.create({
   noteText: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  editButton: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 6,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  titleInput: {
+    fontSize: 24,
+    fontWeight: '600',
+    padding: 16,
+    paddingTop: 20,
+  },
+  contentInput: {
+    flex: 1,
+    fontSize: 16,
+    padding: 16,
+    paddingTop: 8,
   },
 }); 
