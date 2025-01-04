@@ -153,11 +153,11 @@ export default function NoteDetail() {
           key={`styled-${index}`}
           style={[
             styles.noteText,
-            { color: colors.text },
             {
               fontSize: style.fontSize,
               fontFamily: style.fontFamily,
               fontStyle: style.fontStyle,
+              color: style.color || colors.text,
             },
           ]}
         >
