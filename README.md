@@ -48,3 +48,34 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Features in Detail
+
+### Note Management
+- Create new notes with formatted text
+- View and edit existing notes
+- Delete unwanted notes
+- Automatic date tracking
+
+### Text Formatting
+- Multiple font sizes (12-24px)
+- Font family options
+- Text style toggles
+- Color selection
+
+### Theme Support
+- Light and dark mode
+- System-based theme detection
+- Persistent theme preference
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
