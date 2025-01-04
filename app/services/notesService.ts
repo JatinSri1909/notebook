@@ -4,6 +4,7 @@ export interface NoteTextStyle {
   fontSize?: number;
   fontFamily?: string;
   fontStyle?: 'normal' | 'italic';
+  color?: string;
   position: number;
 }
 

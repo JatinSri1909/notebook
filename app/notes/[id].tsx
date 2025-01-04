@@ -52,6 +52,7 @@ export default function NoteDetail() {
               fontSize: style.fontSize,
               fontFamily: style.fontFamily,
               fontStyle: style.fontStyle,
+              color: style.color,
             },
           ]}
         >

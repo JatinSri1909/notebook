@@ -14,6 +14,7 @@ export default function NewNote() {
     fontSize: 16,
     fontFamily: undefined,
     fontStyle: 'normal' as const,
+    color: undefined,
     position: 0,
   });
   const inputRef = useRef<TextInput>(null);
@@ -60,6 +61,18 @@ export default function NewNote() {
     }
   };
 
+  const handleFontColorChange = (color: string) => {
+    if (selection) {
+      const newStyle = {
+        ...currentStyle,
+        color,
+        position: selection.start
+      };
+      setCurrentStyle(newStyle);
+      setTextStyles(prev => [...prev, newStyle]);
+    }
+  };
+
   const saveNote = async () => {
     if (!title.trim() || !content.trim()) {
       Alert.alert('Error', 'Title and content are required');
@@ -89,9 +102,11 @@ export default function NewNote() {
         onFontSizeChange={handleFontSizeChange}
         onFontFamilyChange={handleFontFamilyChange}
         onFontStyleChange={handleFontStyleChange}
+        onFontColorChange={handleFontColorChange}
         currentSize={currentStyle.fontSize || 16}
         currentFamily={currentStyle.fontFamily}
         currentStyle={currentStyle.fontStyle || 'normal'}
+        currentColor={currentStyle.color || colors.text}
       />
 
       <TextInput
@@ -110,6 +125,7 @@ export default function NewNote() {
             fontSize: currentStyle.fontSize,
             fontFamily: currentStyle.fontFamily,
             fontStyle: currentStyle.fontStyle,
+            color: currentStyle.color,
           }
         ]}
         placeholder="Write your note here..."

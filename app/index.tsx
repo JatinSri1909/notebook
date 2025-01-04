@@ -52,7 +52,7 @@ export default function Index() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={colors.text === '#000000' ? 'dark-content' : 'light-content'} />
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.title, { color: colors.text }]}>My Notes</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Notebook</Text>
         <Pressable onPress={toggleTheme} style={styles.themeButton}>
           <Ionicons 
             name={colors.text === '#000000' ? 'moon' : 'sunny'} 

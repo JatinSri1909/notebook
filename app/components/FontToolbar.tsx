@@ -6,9 +6,11 @@ interface FontToolbarProps {
   onFontSizeChange: (size: number) => void;
   onFontFamilyChange: (family: string | undefined) => void;
   onFontStyleChange: (style: 'normal' | 'italic') => void;
+  onFontColorChange: (color: string) => void;
   currentSize: number;
   currentFamily: string | undefined;
   currentStyle: 'normal' | 'italic';
+  currentColor: string;
 }
 
 const FONT_SIZES = [12, 14, 16, 18, 20, 24];
@@ -18,14 +20,24 @@ const FONT_FAMILIES = [
   { name: 'Monospace', value: 'monospace' },
   { name: 'Serif', value: 'serif' },
 ];
+const COLORS = [
+  { name: 'Default', value: undefined },
+  { name: 'Red', value: '#FF3B30' },
+  { name: 'Green', value: '#34C759' },
+  { name: 'Blue', value: '#007AFF' },
+  { name: 'Purple', value: '#5856D6' },
+  { name: 'Orange', value: '#FF9500' },
+];
 
 export function FontToolbar({
   onFontSizeChange,
   onFontFamilyChange,
   onFontStyleChange,
+  onFontColorChange,
   currentSize,
   currentFamily,
   currentStyle,
+  currentColor,
 }: FontToolbarProps) {
   const { colors } = useTheme();
 
@@ -121,6 +133,24 @@ export function FontToolbar({
             </Pressable>
           </View>
         </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.label, { color: colors.subtitle }]}>Color</Text>
+          <View style={styles.options}>
+            {COLORS.map((color) => (
+              <Pressable
+                key={color.name}
+                style={[
+                  styles.option,
+                  styles.colorOption,
+                  currentColor === color.value && { borderColor: colors.primary },
+                  color.value ? { backgroundColor: color.value } : { backgroundColor: colors.text }
+                ]}
+                onPress={() => onFontColorChange(color.value || colors.text)}
+              />
+            ))}
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -150,6 +180,13 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 13,
+  },
+  colorOption: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
 });
 
