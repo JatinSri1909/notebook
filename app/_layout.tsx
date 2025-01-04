@@ -17,6 +17,10 @@ export default function Layout() {
           name="notes/new" 
           options={{ headerShown: false }} 
         />
+        <Stack.Screen 
+          name="notes/[id]"
+          options={{ headerShown: false }} 
+        />
       </Stack>
     </ThemeProvider>
   );

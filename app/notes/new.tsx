@@ -17,7 +17,7 @@ export default function NewNote() {
 
     try {
       await notesService.addNote(title.trim(), content.trim());
-      router.back();
+      router.replace('/');
     } catch (error) {
       Alert.alert('Error', 'Failed to save note');
     }

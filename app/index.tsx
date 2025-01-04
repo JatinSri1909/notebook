@@ -79,7 +79,7 @@ export default function Index() {
           <Pressable
             style={styles.noteCard}
             onPress={() => router.push({
-              pathname: "./notes/[id]",
+              pathname: "/notes/[id]",
               params: { id: item.id }
             })}
           >
