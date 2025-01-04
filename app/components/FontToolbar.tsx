@@ -129,7 +129,8 @@ export function FontToolbar({
 const styles = StyleSheet.create({
   container: {
     borderBottomWidth: 1,
-    paddingVertical: 8,
+    paddingVertical: 4,
+    height: 55,
   },
   section: {
     marginHorizontal: 12,
@@ -143,12 +144,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   option: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
   },
   optionText: {
-    fontSize: 14,
+    fontSize: 13,
   },
 });
 

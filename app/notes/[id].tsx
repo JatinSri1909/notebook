@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { notesService, type Note } from '../services/notesService';
+import { notesService, type Note, NoteTextStyle } from '../services/notesService';
 import { useTheme } from '../context/ThemeContext';
 
 export default function NoteDetail() {
@@ -20,6 +20,60 @@ export default function NoteDetail() {
     setNote(noteData);
   };
 
+  const renderStyledText = (content: string, styles: NoteTextStyle[]) => {
+    if (!styles.length) {
+      return <Text style={[styles.noteText, { color: colors.text }]}>{content}</Text>;
+    }
+
+    // Sort styles by position
+    const sortedStyles = [...styles].sort((a, b) => a.position - b.position);
+    const textPieces = [];
+    let lastIndex = 0;
+
+    sortedStyles.forEach((style, index) => {
+      // Add text before this style with default styling
+      if (style.position > lastIndex) {
+        textPieces.push(
+          <Text key={`default-${index}`} style={[styles.noteText, { color: colors.text }]}>
+            {content.slice(lastIndex, style.position)}
+          </Text>
+        );
+      }
+
+      // Add text with this style
+      const nextPosition = index < sortedStyles.length - 1 ? sortedStyles[index + 1].position : content.length;
+      textPieces.push(
+        <Text
+          key={`styled-${index}`}
+          style={[
+            styles.noteText,
+            { color: colors.text },
+            {
+              fontSize: style.fontSize,
+              fontFamily: style.fontFamily,
+              fontStyle: style.fontStyle,
+            },
+          ]}
+        >
+          {content.slice(style.position, nextPosition)}
+        </Text>
+      );
+
+      lastIndex = nextPosition;
+    });
+
+    // Add any remaining text with default styling
+    if (lastIndex < content.length) {
+      textPieces.push(
+        <Text key="default-last" style={[styles.noteText, { color: colors.text }]}>
+          {content.slice(lastIndex)}
+        </Text>
+      );
+    }
+
+    return <Text>{textPieces}</Text>;
+  };
+
   if (!note) return null;
 
   return (
@@ -31,10 +85,10 @@ export default function NoteDetail() {
         <Text style={[styles.date, { color: colors.subtitle }]}>{note.date}</Text>
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={styles.content}>
         <Text style={[styles.title, { color: colors.text }]}>{note.title}</Text>
-        <Text style={[styles.noteText, { color: colors.text }]}>{note.content}</Text>
-      </View>
+        {renderStyledText(note.content, note.textStyles)}
+      </ScrollView>
     </View>
   );
 }
@@ -47,17 +101,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    paddingTop: 60,
+    padding: 8,
+    paddingTop: 40,
+    height: 70,
     borderBottomWidth: 1,
   },
   backButton: {
-    padding: 8,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   date: {
     fontSize: 14,
   },
   content: {
+    flex: 1,
     padding: 16,
   },
   title: {

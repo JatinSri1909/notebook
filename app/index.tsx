@@ -77,24 +77,33 @@ export default function Index() {
         )}
         renderItem={({ item }) => (
           <Pressable
-            style={styles.noteCard}
+            style={[
+              styles.noteCard,
+              { 
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+              }
+            ]}
             onPress={() => router.push({
               pathname: "/notes/[id]",
               params: { id: item.id }
             })}
           >
             <View style={styles.noteContent}>
-              <Text style={styles.noteTitle}>{item.title}</Text>
-              <Text style={styles.notePreview} numberOfLines={2}>
+              <Text style={[styles.noteTitle, { color: colors.text }]}>{item.title}</Text>
+              <Text 
+                style={[styles.notePreview, { color: colors.subtitle }]} 
+                numberOfLines={2}
+              >
                 {item.content}
               </Text>
-              <Text style={styles.noteDate}>{item.date}</Text>
+              <Text style={[styles.noteDate, { color: colors.subtitle }]}>{item.date}</Text>
             </View>
             <Pressable
               style={styles.deleteButton}
               onPress={() => deleteNote(item.id)}
             >
-              <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+              <Ionicons name="trash-outline" size={20} color={colors.delete} />
             </Pressable>
           </Pressable>
         )}
